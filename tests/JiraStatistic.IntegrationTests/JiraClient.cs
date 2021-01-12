@@ -5,7 +5,7 @@ using Refit;
 
 namespace JiraStatistic.IntegrationTests
 {
-    public class JiraClientTest
+    public class JiraClient
     {
         public Uri JiraBaseUri { get; set; } = new Uri("");
         public string UserName { get; set; } = "";
@@ -13,7 +13,7 @@ namespace JiraStatistic.IntegrationTests
 
         protected HttpClient BuildHttpClient()
         {
-            return new HttpClient
+            return new()
             {
                 BaseAddress = JiraBaseUri
             };

@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace JiraStatistic.IntegrationTests.JiraClientTests
 {
-    public class JiraSessionTests : JiraClientTest
+    public class JiraSession : JiraClient
     {
         [Test]
         public async Task GetCurrentSessionAuthUserTest()
