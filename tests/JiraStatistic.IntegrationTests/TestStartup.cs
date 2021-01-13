@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using JiraStatistic.Domain.Settings;
+using JiraStatistic.JiraClient.Clients.Project;
 using JiraStatistic.JiraClient.Clients.Session;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,16 +31,8 @@ namespace JiraStatistic.IntegrationTests
             var serviceCollection = new ServiceCollection();
             serviceCollection.Configure<JiraSettings>(Configuration.GetSection(nameof(JiraSettings)));
 
-            serviceCollection.AddRefitClient<IJiraSessionClient>()
-                .ConfigureHttpClient((provider, httpClient) =>
-                {
-                    var jiraSettings = provider.GetService<IOptions<JiraSettings>>()?.Value;
-
-                    httpClient.BaseAddress = jiraSettings!.BaseUri;
-                    
-                    var authString = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{jiraSettings!.Auth.Login}:{jiraSettings!.Auth.Password}"));
-                    httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", authString);
-                });
+            serviceCollection.ConfigureRefitClient<IJiraSessionClient>();
+            serviceCollection.ConfigureRefitClient<IJiraProjectClient>();    
             
             ServiceProvider = serviceCollection.BuildServiceProvider();
         }
