@@ -1,4 +1,4 @@
-﻿namespace JiraStatistic.Domain.Settings
+﻿namespace JiraStatistic.Domain.Settings.Jira
 {
     public class JiraAuthSettings
     {

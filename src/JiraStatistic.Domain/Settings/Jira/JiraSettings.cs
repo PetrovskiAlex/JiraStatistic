@@ -1,4 +1,5 @@
 ﻿using System;
+using JiraStatistic.Domain.Settings.Jira;
 
 namespace JiraStatistic.Domain.Settings
 {
