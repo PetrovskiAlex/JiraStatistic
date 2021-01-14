@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using JiraStatistic.Domain.Settings;
 using JiraStatistic.JiraClient.Clients.Project;
+using JiraStatistic.JiraClient.Clients.Search;
 using JiraStatistic.JiraClient.Clients.Session;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,8 +33,9 @@ namespace JiraStatistic.IntegrationTests
             serviceCollection.Configure<JiraSettings>(Configuration.GetSection(nameof(JiraSettings)));
 
             serviceCollection.ConfigureRefitClient<IJiraSessionClient>();
-            serviceCollection.ConfigureRefitClient<IJiraProjectClient>();    
-            
+            serviceCollection.ConfigureRefitClient<IJiraProjectClient>();
+            serviceCollection.ConfigureRefitClient<IJiraSearchClient>();
+
             ServiceProvider = serviceCollection.BuildServiceProvider();
         }
     }
