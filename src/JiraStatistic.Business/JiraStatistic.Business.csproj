@@ -6,4 +6,10 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\JiraStatistic.Business.Abstractions\JiraStatistic.Business.Abstractions.csproj" />
+      <ProjectReference Include="..\JiraStatistic.Domain\JiraStatistic.Domain.csproj" />
+      <ProjectReference Include="..\JiraStatistic.JiraClient\JiraStatistic.JiraClient.csproj" />
+    </ItemGroup>
+
 </Project>
