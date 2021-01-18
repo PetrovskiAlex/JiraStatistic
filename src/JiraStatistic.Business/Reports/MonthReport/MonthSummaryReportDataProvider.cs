@@ -6,6 +6,7 @@ using JiraStatistic.Business.Abstractions.Reports.MonthReport;
 using JiraStatistic.Domain.Settings;
 using JiraStatistic.Domain.Settings.Jira;
 using JiraStatistic.Domain.Settings.Report;
+using JiraStatistic.JiraClient.Clients.Issue;
 using JiraStatistic.JiraClient.Clients.Project;
 using JiraStatistic.JiraClient.Clients.Search;
 using JiraStatistic.JiraClient.Clients.Session;
@@ -23,16 +24,19 @@ namespace JiraStatistic.Business.Reports.MonthReport
         private readonly IJiraProjectClient _projectClient;
         private readonly IJiraSearchClient _searchClient;
         private readonly IJiraUserClient _jiraUserClient;
+        private readonly IJiraWorkLogClient _jiraWorkLogClient;
 
 
         public MonthSummaryReportDataProvider(
             IJiraProjectClient projectClient, 
             IJiraSearchClient searchClient,
-            IJiraUserClient jiraUserClient)
+            IJiraUserClient jiraUserClient,
+            IJiraWorkLogClient jiraWorkLogClient)
         {
             _projectClient = projectClient;
             _searchClient = searchClient;
             _jiraUserClient = jiraUserClient;
+            _jiraWorkLogClient = jiraWorkLogClient;
         }
 
         public async Task<MonthSummaryReportData> GetData(MonthReportSummarySettings monthReportSettings, JiraProjectSettings projectSettings, JiraAuthSettings? authSettings = null)
@@ -42,7 +46,7 @@ namespace JiraStatistic.Business.Reports.MonthReport
 
             var dateFilter = GetDateFilter(monthReportSettings);
             var issues = await GetIssues(monthReportSettings, projectSettings, dateFilter);
-            var worklogs = GetWorklogs(issues, dateFilter, user.Name);
+            var worklogs = await GetWorkLogs(issues, dateFilter, user.Name);
 
             return new MonthSummaryReportData
             {
@@ -89,8 +93,25 @@ namespace JiraStatistic.Business.Reports.MonthReport
             return result;
         }
         
-        private IssueTime[] GetWorklogs(List<Issue> issues, DateTimeFilter filter, string user)
+        private async ValueTask<IssueTime[]> GetWorkLogs(List<Issue> issues, DateTimeFilter filter, string user)
         {
+            var issuesToEnrichWorkLogs = issues.Where(i => i.Fields.Worklog.MaxResults < i.Fields.Worklog.Total).ToArray();
+            foreach (var issue in issuesToEnrichWorkLogs)
+            {
+                var workLogs = new List<WorklogItem>();
+                var issueWorkLogResponse = await _jiraWorkLogClient.GetIssueWorkLogs(issue.Id);
+                workLogs.AddRange(issueWorkLogResponse.Worklogs);
+                var total = issueWorkLogResponse.Worklogs.Length;
+                while (total < issueWorkLogResponse.Total)
+                {
+                    issueWorkLogResponse = await _jiraWorkLogClient.GetIssueWorkLogs(issue.Id);
+                    workLogs.AddRange(issueWorkLogResponse.Worklogs);
+                    total += issueWorkLogResponse.Worklogs.Length;
+                }
+
+                issue.Fields.Worklog.Worklogs = workLogs.ToArray();
+            }
+
             return issues
                 .Select(issue => new
                 {

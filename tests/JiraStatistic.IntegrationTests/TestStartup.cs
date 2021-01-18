@@ -5,6 +5,7 @@ using JiraStatistic.Business.Abstractions.Reports.MonthReport;
 using JiraStatistic.Business.Reports.MonthReport;
 using JiraStatistic.Domain.Settings;
 using JiraStatistic.Domain.Settings.Report;
+using JiraStatistic.JiraClient.Clients.Issue;
 using JiraStatistic.JiraClient.Clients.Project;
 using JiraStatistic.JiraClient.Clients.Search;
 using JiraStatistic.JiraClient.Clients.Session;
@@ -41,6 +42,7 @@ namespace JiraStatistic.IntegrationTests
             serviceCollection.ConfigureRefitClient<IJiraProjectClient>();
             serviceCollection.ConfigureRefitClient<IJiraSearchClient>();
             serviceCollection.ConfigureRefitClient<IJiraUserClient>();
+            serviceCollection.ConfigureRefitClient<IJiraWorkLogClient>();
             serviceCollection.AddScoped<IMonthSummaryReportDataProvider, MonthSummaryReportDataProvider>();
 
             ServiceProvider = serviceCollection.BuildServiceProvider();
