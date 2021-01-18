@@ -35,12 +35,12 @@ namespace JiraStatistic.Business.Reports.MonthReport
 
         public async Task<MonthSummaryReportData> GetData(MonthReportSummarySettings monthReportSettings, JiraProjectSettings projectSettings, JiraAuthSettings? authSettings = null)
         {
-            //var projectInfo = await _projectClient.GetProjectInfo(projectSettings.Name);
+            var user = await _sessionClient.GetCurrentSessionUser();
+            var projectInfo = await _projectClient.GetProjectInfo(projectSettings.Name);
 
-            var dateNow = DateTime.Now;
-
-            var issues = await GetIssues(monthReportSettings, projectSettings, dateNow);
-            var worklogs = GetWorklogs(issues);
+            var dateFilter = GetDateFilter(monthReportSettings);
+            var issues = await GetIssues(monthReportSettings, projectSettings, dateFilter);
+            var worklogs = GetWorklogs(issues, dateFilter, user.Name);
 
             return new MonthSummaryReportData
             {
@@ -48,7 +48,7 @@ namespace JiraStatistic.Business.Reports.MonthReport
                 ClosedHours = Math.Round(worklogs.Sum(w => w.Hours), 1),
                 Project = new MonthReportProjectInfo
                 {
-                    //Name = projectInfo.Name,
+                    Name = projectInfo.Name,
                     Tasks = worklogs.Select(w => new MonthReportTaskInfo
                     {
                         Name = w.Summary,
@@ -59,17 +59,14 @@ namespace JiraStatistic.Business.Reports.MonthReport
             };
         }
         
-        private async Task<List<Issue>> GetIssues(MonthReportSummarySettings monthReportSettings, JiraProjectSettings projectSettings, DateTime dateNow)
+        private async Task<List<Issue>> GetIssues(MonthReportSummarySettings monthReportSettings, JiraProjectSettings projectSettings, DateTimeFilter dateFilter)
         {
-            var dateFilter = GetDateFilter(monthReportSettings);
-
-            var totalResult = 0;
             var startAt = 0;
             var jql = $"project = {projectSettings.Name} " +
                       $"and worklogAuthor = currentUser() " +
-                      $"and worklogDate >= {dateFilter.Start:yyyy-mm-dd} " +
-                      $"and worklogDate <= {dateFilter.End:yyyy-mm-dd} " +
-                      $"and order by createdDate asc";
+                      $"and worklogDate >= {dateFilter.Start:yyyy-MM-dd} " +
+                      $"and worklogDate <= {dateFilter.End:yyyy-MM-dd} " +
+                      $" order by createdDate asc";
 
             var fields = "worklog, summary";
             var total = 0;
@@ -88,6 +85,23 @@ namespace JiraStatistic.Business.Reports.MonthReport
 
             return result;
         }
+        
+        private IssueTime[] GetWorklogs(List<Issue> issues, DateTimeFilter filter, string user)
+        {
+            return issues
+                .Select(issue => new
+                {
+                    issue.Fields.Summary,
+                    Hours = Math.Round(
+                        (issue.Fields.Worklog?.Worklogs?
+                            .Where(w => w.Author.Name == user)
+                            .Where(w => w.Started >= filter.Start && w.Started <= filter.End)
+                            .Sum(w => w.TimeSpentSeconds) / 60 / 60.0) ?? 0, 1)
+                })
+                .GroupBy(w => w.Summary)
+                .Select(group => new IssueTime(@group.Key, @group.Sum(g => g.Hours)))
+                .ToArray();
+        }
 
         private DateTimeFilter GetDateFilter(MonthReportSummarySettings monthReportSettings)
         {
@@ -102,22 +116,8 @@ namespace JiraStatistic.Business.Reports.MonthReport
             return new DateTimeFilter(start, end);
         }
 
-        private IssueTime[] GetWorklogs(List<Issue> issues)
-        {
-            return issues
-                .Select(issue => new
-                {
-                    issue.Fields.Summary,
-                    Hours = Math.Round(
-                        (issue.Fields.Worklog?.Worklogs?.Sum(w => w.TimeSpentSeconds) / 60 / 60.0) ?? 0, 1)
-                })
-                .GroupBy(w => w.Summary)
-                .Select(group => new IssueTime(@group.Key, @group.Sum(g => g.Hours)))
-                .ToArray();
-        }
-
         private record DateTimeFilter(DateTime Start, DateTime End);
-        
+
         private record IssueTime(string Summary, double Hours);
     }
 }

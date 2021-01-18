@@ -15,10 +15,10 @@ namespace JiraStatistic.IntegrationTests.Reports
         public async Task GetDataTest()
         {
             var dataProvider = TestStartup.ServiceProvider.GetService<IMonthSummaryReportDataProvider>();
-            var monthReportSummarySettings = TestStartup.ServiceProvider.GetService<IOptions<MonthReportSummarySettings>>()?.Value;
-            var jiraProjectSettings = TestStartup.ServiceProvider.GetService<IOptions<JiraProjectSettings>>()?.Value;
+            var monthReportSummarySettings = TestStartup.ServiceProvider.GetService<IOptions<ReportSettings>>()?.Value;
+            var jiraProjectSettings = TestStartup.ServiceProvider.GetService<IOptions<JiraSettings>>()?.Value;
 
-            var reportData = await dataProvider!.GetData(monthReportSummarySettings!, jiraProjectSettings!);
+            var reportData = await dataProvider!.GetData(monthReportSummarySettings!.MonthReportSummary!, jiraProjectSettings!.ProjectInfo!);
 
             reportData.Should().NotBeNull();
         }
