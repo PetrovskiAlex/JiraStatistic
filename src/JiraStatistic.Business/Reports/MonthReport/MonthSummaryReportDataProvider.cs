@@ -9,6 +9,7 @@ using JiraStatistic.Domain.Settings.Report;
 using JiraStatistic.JiraClient.Clients.Project;
 using JiraStatistic.JiraClient.Clients.Search;
 using JiraStatistic.JiraClient.Clients.Session;
+using JiraStatistic.JiraClient.Clients.User;
 
 namespace System.Runtime.CompilerServices
 {
@@ -21,21 +22,22 @@ namespace JiraStatistic.Business.Reports.MonthReport
     {
         private readonly IJiraProjectClient _projectClient;
         private readonly IJiraSearchClient _searchClient;
-        private readonly IJiraSessionClient _sessionClient;
+        private readonly IJiraUserClient _jiraUserClient;
+
 
         public MonthSummaryReportDataProvider(
             IJiraProjectClient projectClient, 
             IJiraSearchClient searchClient,
-            IJiraSessionClient sessionClient)
+            IJiraUserClient jiraUserClient)
         {
             _projectClient = projectClient;
             _searchClient = searchClient;
-            _sessionClient = sessionClient;
+            _jiraUserClient = jiraUserClient;
         }
 
         public async Task<MonthSummaryReportData> GetData(MonthReportSummarySettings monthReportSettings, JiraProjectSettings projectSettings, JiraAuthSettings? authSettings = null)
         {
-            var user = await _sessionClient.GetCurrentSessionUser();
+            var user = await _jiraUserClient.Myself();
             var projectInfo = await _projectClient.GetProjectInfo(projectSettings.Name);
 
             var dateFilter = GetDateFilter(monthReportSettings);
@@ -46,6 +48,7 @@ namespace JiraStatistic.Business.Reports.MonthReport
             {
                 Date = GetDateFilter(monthReportSettings).Start,
                 ClosedHours = Math.Round(worklogs.Sum(w => w.Hours), 1),
+                Name = user.DisplayName,
                 Project = new MonthReportProjectInfo
                 {
                     Name = projectInfo.Name,

@@ -8,6 +8,7 @@ using JiraStatistic.Domain.Settings.Report;
 using JiraStatistic.JiraClient.Clients.Project;
 using JiraStatistic.JiraClient.Clients.Search;
 using JiraStatistic.JiraClient.Clients.Session;
+using JiraStatistic.JiraClient.Clients.User;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -39,6 +40,7 @@ namespace JiraStatistic.IntegrationTests
             serviceCollection.ConfigureRefitClient<IJiraSessionClient>();
             serviceCollection.ConfigureRefitClient<IJiraProjectClient>();
             serviceCollection.ConfigureRefitClient<IJiraSearchClient>();
+            serviceCollection.ConfigureRefitClient<IJiraUserClient>();
             serviceCollection.AddScoped<IMonthSummaryReportDataProvider, MonthSummaryReportDataProvider>();
 
             ServiceProvider = serviceCollection.BuildServiceProvider();

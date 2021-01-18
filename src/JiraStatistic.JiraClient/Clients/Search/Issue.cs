@@ -22,22 +22,13 @@ namespace JiraStatistic.JiraClient.Clients.Search
     {
         public string Id { get; set; }
         public string Self { get; set; }
-        public User Author { get; set; }
-        public User UpdateAuthor { get; set; }
+        public User.User Author { get; set; }
+        public User.User UpdateAuthor { get; set; }
         public string Comment { get; set; }
         public DateTime Created { get; set; }
         public DateTime Updated { get; set; }
         public DateTime Started { get; set; }
         public string TimeSpent { get; set; }
         public int TimeSpentSeconds { get; set; }
-    }
-
-    public class User
-    {
-        public string Self { get; set; }
-        public string Name { get; set; }
-        public string Key { get; set; }
-        public string EmailAddress { get; set; }
-        public string DisplayName { get; set; }
     }
 }
