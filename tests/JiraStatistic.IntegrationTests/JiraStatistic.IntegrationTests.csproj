@@ -24,6 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\src\JiraStatistic.Business\JiraStatistic.Business.csproj" />
       <ProjectReference Include="..\..\src\JiraStatistic.Domain\JiraStatistic.Domain.csproj" />
       <ProjectReference Include="..\..\src\JiraStatistic.JiraClient\JiraStatistic.JiraClient.csproj" />
     </ItemGroup>

@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using JiraStatistic.Business.Abstractions.Reports.MonthReport;
+using JiraStatistic.Domain.Settings;
 using JiraStatistic.Domain.Settings.Report;
 
 namespace JiraStatistic.Business.Reports.MonthReport
@@ -13,9 +14,9 @@ namespace JiraStatistic.Business.Reports.MonthReport
             _reportDataProvider = reportDataProvider;
         }
 
-        public async Task MakeReport(MonthSummarySettings settings)
+        public async Task MakeReport(MonthReportSummarySettings monthReportSummarySettings, JiraProjectSettings jiraProjectSettings)
         {
-            var reportData = await _reportDataProvider.GetData();
+            var reportData = await _reportDataProvider.GetData(monthReportSummarySettings, jiraProjectSettings);
             //Make a report
             //Save report
 

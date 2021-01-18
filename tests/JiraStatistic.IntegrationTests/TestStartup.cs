@@ -1,7 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using JiraStatistic.Business.Abstractions.Reports.MonthReport;
+using JiraStatistic.Business.Reports.MonthReport;
 using JiraStatistic.Domain.Settings;
+using JiraStatistic.Domain.Settings.Report;
 using JiraStatistic.JiraClient.Clients.Project;
 using JiraStatistic.JiraClient.Clients.Search;
 using JiraStatistic.JiraClient.Clients.Session;
@@ -31,10 +34,12 @@ namespace JiraStatistic.IntegrationTests
 
             var serviceCollection = new ServiceCollection();
             serviceCollection.Configure<JiraSettings>(Configuration.GetSection(nameof(JiraSettings)));
+            serviceCollection.Configure<ReportSettings>(Configuration.GetSection(nameof(ReportSettings)));
 
             serviceCollection.ConfigureRefitClient<IJiraSessionClient>();
             serviceCollection.ConfigureRefitClient<IJiraProjectClient>();
             serviceCollection.ConfigureRefitClient<IJiraSearchClient>();
+            serviceCollection.AddScoped<IMonthSummaryReportDataProvider, MonthSummaryReportDataProvider>();
 
             ServiceProvider = serviceCollection.BuildServiceProvider();
         }

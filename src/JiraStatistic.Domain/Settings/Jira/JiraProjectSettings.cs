@@ -1,6 +1,6 @@
 ﻿namespace JiraStatistic.Domain.Settings
 {
-    public class JiraProjectInfo
+    public class JiraProjectSettings
     {
         public string Name { get; set; }
     }

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using JiraStatistic.JiraClient.Clients.Search;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;

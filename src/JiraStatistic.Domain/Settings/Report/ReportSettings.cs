@@ -2,12 +2,13 @@
 {
     public class ReportSettings
     {
-        public MonthSummarySettings MonthSummary { get; set; }
+        public MonthReportSummarySettings MonthReportSummary { get; set; }
     }
 
-    public class MonthSummarySettings
+    public class MonthReportSummarySettings
     {
-        public string Month { get; set; }
+        public int Year { get; set; }
+        public int Month { get; set; }
         public string SavePath { get; set; }
     }
 }

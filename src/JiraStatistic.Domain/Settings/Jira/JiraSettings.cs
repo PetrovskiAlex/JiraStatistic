@@ -7,6 +7,6 @@ namespace JiraStatistic.Domain.Settings
     {
         public JiraAuthSettings Auth { get; set; }
         public Uri BaseUri { get; set; }
-        public JiraProjectInfo ProjectInfo { get; set; }
+        public JiraProjectSettings ProjectInfo { get; set; }
     }
 }
