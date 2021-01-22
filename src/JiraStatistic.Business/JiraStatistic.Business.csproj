@@ -12,4 +12,8 @@
       <ProjectReference Include="..\JiraStatistic.JiraClient\JiraStatistic.JiraClient.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="ClosedXML" Version="0.95.4" />
+    </ItemGroup>
+
 </Project>

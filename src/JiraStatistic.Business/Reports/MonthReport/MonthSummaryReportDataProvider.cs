@@ -58,6 +58,7 @@ namespace JiraStatistic.Business.Reports.MonthReport
                     Name = projectInfo.Name,
                     Tasks = worklogs.Select(w => new MonthReportTaskInfo
                     {
+                        Code = w.Code,
                         Name = w.Summary,
                         Hours = w.Hours
                     }).ToArray(),
@@ -112,9 +113,10 @@ namespace JiraStatistic.Business.Reports.MonthReport
                 issue.Fields.Worklog.Worklogs = workLogs.ToArray();
             }
 
-            return issues
+            var result = issues
                 .Select(issue => new
                 {
+                    issue.Key,
                     issue.Fields.Summary,
                     Hours = Math.Round(
                         (issue.Fields.Worklog?.Worklogs?
@@ -122,9 +124,12 @@ namespace JiraStatistic.Business.Reports.MonthReport
                             .Where(w => w.Started >= filter.Start && w.Started <= filter.End)
                             .Sum(w => w.TimeSpentSeconds) / 60 / 60.0) ?? 0, 1)
                 })
-                .GroupBy(w => w.Summary)
-                .Select(group => new IssueTime(@group.Key, @group.Sum(g => g.Hours)))
+                .GroupBy(w => w.Key)
+                .Select(group =>
+                    new IssueTime(@group.Key, @group.Select(g => g.Summary).FirstOrDefault() ?? string.Empty, @group.Sum(g => g.Hours)))
                 .ToArray();
+            
+            return result;
         }
 
         private DateTimeFilter GetDateFilter(MonthReportSummarySettings monthReportSettings)
@@ -142,6 +147,6 @@ namespace JiraStatistic.Business.Reports.MonthReport
 
         private record DateTimeFilter(DateTime Start, DateTime End);
 
-        private record IssueTime(string Summary, double Hours);
+        private record IssueTime(string Code, string Summary, double Hours);
     }
 }

@@ -19,6 +19,7 @@ namespace JiraStatistic.Business.Abstractions.Reports.MonthReport
 
     public class MonthReportTaskInfo
     {
+        public string Code { get; set; }
         public string Name { get; set; }
         public double Hours { get; set; }
     }
