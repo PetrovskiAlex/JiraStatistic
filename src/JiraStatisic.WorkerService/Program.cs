@@ -12,14 +12,12 @@ namespace JiraStatisic.WorkerService
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
-                .ConfigureHostConfiguration(builder =>
+                .ConfigureAppConfiguration(builder =>
                 {
                     builder
                         .AddJsonFile("appsettings.json")
                         .AddJsonFile("appsettings.local.json", true);
                 })
                 .ConfigureServices(Startup.ConfigureDelegate);
-
-      
     }
 }

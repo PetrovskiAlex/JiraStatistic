@@ -15,29 +15,28 @@ using Microsoft.Extensions.Hosting;
 
 namespace JiraStatisic.WorkerService
 {
-    public class Startup
+    public static class Startup
     {
-        private static IConfiguration Configuration { get; set; }
-        
         public static void ConfigureDelegate(HostBuilderContext arg1, IServiceCollection services)
         {
-            ConfigureOptions(services);
+            ConfigureOptions(arg1.Configuration, services);
 
             services.ConfigureRefitClient<IJiraSessionClient>();
             services.ConfigureRefitClient<IJiraProjectClient>();
             services.ConfigureRefitClient<IJiraSearchClient>();
             services.ConfigureRefitClient<IJiraUserClient>();
             services.ConfigureRefitClient<IJiraWorkLogClient>();
-            services.AddScoped<IMonthSummaryReportDataProvider, MonthSummaryReportDataProvider>();
-            services.AddScoped<ExcelMonthReportSaver>();
-            services.AddSingleton<IReportFactory, ReportFactory>();
+            services.AddTransient<IMonthSummaryReportDataProvider, MonthSummaryReportDataProvider>();
+            services.AddTransient<ExcelMonthReportSaver>();
+            services.AddTransient<IMonthSummaryReport, MonthSummaryReport>();
+            services.AddTransient<IReportFactory, ReportFactory>();
             services.AddHostedService<Worker>();
         }
 
-        private static void ConfigureOptions(IServiceCollection services)
+        private static void ConfigureOptions(IConfiguration configuration, IServiceCollection services)
         {
-            services.Configure<JiraSettings>(Configuration.GetSection(nameof(JiraSettings)));
-            services.Configure<ReportSettings>(Configuration.GetSection(nameof(ReportSettings)));
+            services.Configure<JiraSettings>(configuration.GetSection(nameof(JiraSettings)));
+            services.Configure<ReportSettings>(configuration.GetSection(nameof(ReportSettings)));
         }
     }
 }
