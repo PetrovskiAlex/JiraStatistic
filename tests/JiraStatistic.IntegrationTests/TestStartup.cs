@@ -1,7 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Text;
+using JiraStatistic.Business.Abstractions.Reports;
 using JiraStatistic.Business.Abstractions.Reports.MonthReport;
+using JiraStatistic.Business.Reports;
 using JiraStatistic.Business.Reports.MonthReport;
 using JiraStatistic.Domain.Settings;
 using JiraStatistic.Domain.Settings.Report;
@@ -12,9 +13,7 @@ using JiraStatistic.JiraClient.Clients.Session;
 using JiraStatistic.JiraClient.Clients.User;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using NUnit.Framework;
-using Refit;
 
 namespace JiraStatistic.IntegrationTests
 {
@@ -43,7 +42,10 @@ namespace JiraStatistic.IntegrationTests
             serviceCollection.ConfigureRefitClient<IJiraSearchClient>();
             serviceCollection.ConfigureRefitClient<IJiraUserClient>();
             serviceCollection.ConfigureRefitClient<IJiraWorkLogClient>();
+            
             serviceCollection.AddScoped<IMonthSummaryReportDataProvider, MonthSummaryReportDataProvider>();
+            serviceCollection.AddScoped<ExcelMonthReportSaver>();
+            serviceCollection.AddSingleton<IReportFactory, ReportFactory>();
 
             ServiceProvider = serviceCollection.BuildServiceProvider();
         }

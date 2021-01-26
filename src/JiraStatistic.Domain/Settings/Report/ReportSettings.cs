@@ -2,11 +2,13 @@
 {
     public class ReportSettings
     {
-        public MonthReportSummarySettings MonthReportSummary { get; set; }
+        public ReportSummarySettings ReportSummary { get; set; }
     }
 
-    public class MonthReportSummarySettings
+    public class ReportSummarySettings
     {
+        public DocumentTypeEnum DocumentType { get; set; }
+        public string Name { get; set; }
         public int Year { get; set; }
         public int Month { get; set; }
         public string SavePath { get; set; }

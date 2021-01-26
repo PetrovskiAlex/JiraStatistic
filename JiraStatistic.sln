@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JiraStatistic.Business.Abst
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JiraStatistic.Business", "src\JiraStatistic.Business\JiraStatistic.Business.csproj", "{924C99B0-ADA9-4201-8AED-1556AE6EAAF6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JiraStatisic.WorkerService", "src\JiraStatisic.WorkerService\JiraStatisic.WorkerService.csproj", "{D3FB5D98-3F19-417B-AA25-F0055754B386}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{924C99B0-ADA9-4201-8AED-1556AE6EAAF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{924C99B0-ADA9-4201-8AED-1556AE6EAAF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{924C99B0-ADA9-4201-8AED-1556AE6EAAF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3FB5D98-3F19-417B-AA25-F0055754B386}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3FB5D98-3F19-417B-AA25-F0055754B386}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3FB5D98-3F19-417B-AA25-F0055754B386}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3FB5D98-3F19-417B-AA25-F0055754B386}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,6 +73,7 @@ Global
 		{F92F23BD-7957-4E59-9779-3DA1E421E767} = {7595ED20-0538-4548-9110-0767DE83BF13}
 		{8FAB7E7B-BAC6-4308-BE37-34DF0B9F6F73} = {7595ED20-0538-4548-9110-0767DE83BF13}
 		{924C99B0-ADA9-4201-8AED-1556AE6EAAF6} = {7595ED20-0538-4548-9110-0767DE83BF13}
+		{D3FB5D98-3F19-417B-AA25-F0055754B386} = {7595ED20-0538-4548-9110-0767DE83BF13}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F4E33F6E-0128-401E-84FE-78461F907B78}

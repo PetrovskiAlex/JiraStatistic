@@ -4,13 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using JiraStatistic.Business.Abstractions.Reports.MonthReport;
 using JiraStatistic.Domain.Settings;
-using JiraStatistic.Domain.Settings.Jira;
 using JiraStatistic.Domain.Settings.Report;
 using JiraStatistic.JiraClient.Clients.Issue;
 using JiraStatistic.JiraClient.Clients.Project;
 using JiraStatistic.JiraClient.Clients.Search;
-using JiraStatistic.JiraClient.Clients.Session;
 using JiraStatistic.JiraClient.Clients.User;
+using Microsoft.Extensions.Options;
 
 namespace System.Runtime.CompilerServices
 {
@@ -25,52 +24,57 @@ namespace JiraStatistic.Business.Reports.MonthReport
         private readonly IJiraSearchClient _searchClient;
         private readonly IJiraUserClient _jiraUserClient;
         private readonly IJiraWorkLogClient _jiraWorkLogClient;
-
+        private readonly ReportSettings _reportSettings;
+        private readonly JiraSettings _jiraSettings;
 
         public MonthSummaryReportDataProvider(
             IJiraProjectClient projectClient, 
             IJiraSearchClient searchClient,
             IJiraUserClient jiraUserClient,
-            IJiraWorkLogClient jiraWorkLogClient)
+            IJiraWorkLogClient jiraWorkLogClient,
+            IOptions<ReportSettings> reportSettings, 
+            IOptions<JiraSettings> jiraSettings)
         {
             _projectClient = projectClient;
             _searchClient = searchClient;
             _jiraUserClient = jiraUserClient;
             _jiraWorkLogClient = jiraWorkLogClient;
+            _reportSettings = reportSettings.Value;
+            _jiraSettings = jiraSettings.Value;
         }
 
-        public async Task<MonthSummaryReportData> GetData(MonthReportSummarySettings monthReportSettings, JiraProjectSettings projectSettings, JiraAuthSettings? authSettings = null)
+        public async Task<SummaryReportData> GetData()
         {
             var user = await _jiraUserClient.Myself();
-            var projectInfo = await _projectClient.GetProjectInfo(projectSettings.Name);
+            var projectInfo = await _projectClient.GetProjectInfo(_jiraSettings.ProjectInfo.Name);
 
-            var dateFilter = GetDateFilter(monthReportSettings);
-            var issues = await GetIssues(monthReportSettings, projectSettings, dateFilter);
-            var worklogs = await GetWorkLogs(issues, dateFilter, user.Name);
+            var dateFilter = GetDateFilter();
+            var issues = await GetIssues(dateFilter);
+            var workLogs = await GetWorkLogs(issues, dateFilter, user.Name);
 
-            return new MonthSummaryReportData
+            return new SummaryReportData
             {
-                Date = GetDateFilter(monthReportSettings).Start,
-                ClosedHours = Math.Round(worklogs.Sum(w => w.Hours), 1),
+                Date = dateFilter.Start,
+                ClosedHours = Math.Round(workLogs.Sum(w => w.Hours), 1),
                 Name = user.DisplayName,
-                Project = new MonthReportProjectInfo
+                Project = new ReportProjectInfo
                 {
                     Name = projectInfo.Name,
-                    Tasks = worklogs.Select(w => new MonthReportTaskInfo
+                    Tasks = workLogs.Select(w => new ReportTaskInfo
                     {
                         Code = w.Code,
                         Name = w.Summary,
                         Hours = w.Hours
                     }).ToArray(),
-                    ClosedHours = Math.Round(worklogs.Sum(w => w.Hours), 1)
+                    ClosedHours = Math.Round(workLogs.Sum(w => w.Hours), 1)
                 }
             };
         }
         
-        private async Task<List<Issue>> GetIssues(MonthReportSummarySettings monthReportSettings, JiraProjectSettings projectSettings, DateTimeFilter dateFilter)
+        private async Task<List<Issue>> GetIssues(DateTimeFilter dateFilter)
         {
             var startAt = 0;
-            var jql = $"project = {projectSettings.Name} " +
+            var jql = $"project = {_jiraSettings.ProjectInfo.Name} " +
                       $"and worklogAuthor = currentUser() " +
                       $"and worklogDate >= {dateFilter.Start:yyyy-MM-dd} " +
                       $"and worklogDate <= {dateFilter.End:yyyy-MM-dd} " +
@@ -132,8 +136,10 @@ namespace JiraStatistic.Business.Reports.MonthReport
             return result;
         }
 
-        private DateTimeFilter GetDateFilter(MonthReportSummarySettings monthReportSettings)
+        private DateTimeFilter GetDateFilter()
         {
+            var monthReportSettings = _reportSettings.ReportSummary;
+            
             var dateNow = DateTime.Now;
             var year = monthReportSettings.Year <= 0 ? dateNow.Year : monthReportSettings.Year;
             var month = monthReportSettings.Month <= 0 || monthReportSettings.Month > 12

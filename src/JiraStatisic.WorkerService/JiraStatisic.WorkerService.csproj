@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <UserSecretsId>dotnet-JiraStatisic.WorkerService-A0A531A7-9B0E-45F0-B625-7EBFC8D59128</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+        <PackageReference Include="Refit.HttpClientFactory" Version="5.2.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\JiraStatistic.Business.Abstractions\JiraStatistic.Business.Abstractions.csproj" />
+      <ProjectReference Include="..\JiraStatistic.Business\JiraStatistic.Business.csproj" />
+      <ProjectReference Include="..\JiraStatistic.Domain\JiraStatistic.Domain.csproj" />
+      <ProjectReference Include="..\JiraStatistic.JiraClient\JiraStatistic.JiraClient.csproj" />
+    </ItemGroup>
+</Project>
