@@ -2,23 +2,24 @@
 
 namespace JiraStatistic.Business.Abstractions.Reports.MonthReport
 {
-    public class MonthSummaryReportData
+    public class SummaryReportData
     {
         public string Name { get; set; }
         public DateTime Date { get; set; }
         public double ClosedHours { get; set; }
-        public MonthReportProjectInfo Project { get; set; }
+        public ReportProjectInfo Project { get; set; }
     }
 
-    public class MonthReportProjectInfo
+    public class ReportProjectInfo
     {
         public string Name { get; set; }
         public double ClosedHours { get; set; }
-        public MonthReportTaskInfo[] Tasks { get; set; }
+        public ReportTaskInfo[] Tasks { get; set; }
     }
 
-    public class MonthReportTaskInfo
+    public class ReportTaskInfo
     {
+        public string Code { get; set; }
         public string Name { get; set; }
         public double Hours { get; set; }
     }
