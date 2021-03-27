@@ -2,6 +2,7 @@
 using JiraStatistic.Business.Abstractions.Reports;
 using JiraStatistic.Business.Abstractions.Reports.MonthReport;
 using JiraStatistic.Domain.Settings;
+using JiraStatistic.Domain.Settings.Jira;
 using JiraStatistic.Domain.Settings.Report;
 using Microsoft.Extensions.Options;
 
@@ -27,7 +28,7 @@ namespace JiraStatistic.Business.Reports.MonthReport
             var reportData = await _reportDataProvider.GetData();
             
             var reportSaver = _reportFactory.CreateReportSaver(_reportSettings.ReportSummary.DocumentType);
-            await Task.Run(() => reportSaver.Save(reportData));
+            //await Task.Run(() => reportSaver.Save(reportData)); //TODO
         }
     }
 }

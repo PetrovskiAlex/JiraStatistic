@@ -4,16 +4,17 @@ using JiraStatistic.Business.Abstractions.Reports;
 using JiraStatistic.Business.Abstractions.Reports.MonthReport;
 using JiraStatistic.Business.Reports;
 using JiraStatistic.Business.Reports.MonthReport;
-using JiraStatistic.Domain.Settings;
+using JiraStatistic.Domain.Settings.Jira;
 using JiraStatistic.Domain.Settings.Report;
+using JiraStatistic.JiraClient;
 using JiraStatistic.JiraClient.Clients.Issue;
 using JiraStatistic.JiraClient.Clients.Project;
 using JiraStatistic.JiraClient.Clients.Search;
-using JiraStatistic.JiraClient.Clients.Session;
 using JiraStatistic.JiraClient.Clients.User;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
+using Refit;
 
 namespace JiraStatistic.IntegrationTests
 {
@@ -34,14 +35,16 @@ namespace JiraStatistic.IntegrationTests
                 .Build();
 
             var serviceCollection = new ServiceCollection();
-            serviceCollection.Configure<JiraSettings>(Configuration.GetSection(nameof(JiraSettings)));
+
+            var jiraInfos = Configuration.GetSection(nameof(JiraSettings)).Get<JiraInfo[]>();
+            serviceCollection.Configure<JiraSettings>(options => options.JiraInfos = jiraInfos);
             serviceCollection.Configure<ReportSettings>(Configuration.GetSection(nameof(ReportSettings)));
 
-            serviceCollection.ConfigureRefitClient<IJiraSessionClient>();
-            serviceCollection.ConfigureRefitClient<IJiraProjectClient>();
-            serviceCollection.ConfigureRefitClient<IJiraSearchClient>();
-            serviceCollection.ConfigureRefitClient<IJiraUserClient>();
-            serviceCollection.ConfigureRefitClient<IJiraWorkLogClient>();
+            serviceCollection.AddTransient<IJiraClientFactory, JiraClientFactory>();
+            serviceCollection.AddRefitClient<IJiraProjectClient>();
+            serviceCollection.AddRefitClient<IJiraSearchClient>();
+            serviceCollection.AddRefitClient<IJiraUserClient>();
+            serviceCollection.AddRefitClient<IJiraWorkLogClient>();
             
             serviceCollection.AddScoped<IMonthSummaryReportDataProvider, MonthSummaryReportDataProvider>();
             serviceCollection.AddScoped<ExcelMonthReportSaver>();

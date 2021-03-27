@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace JiraStatisic.WorkerService
+namespace JiraStatistic.WorkerService
 {
     public class Worker : BackgroundService
     {

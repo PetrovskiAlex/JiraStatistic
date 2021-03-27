@@ -16,16 +16,16 @@ namespace JiraStatistic.Business.Reports.MonthReport
             _reportSettings = reportSettings.Value;
         }
         
-        public async Task Save(SummaryReportData reportData)
+        public async Task Save(ProjectSummaryReportData reportData)
         {
             var wb = new XLWorkbook();
             var ws = wb.Worksheets.Add("Часы");
             
             ws.Cell(1,1).Value = "Имя и фамилия:";
-            ws.Cell(1,2).Value = reportData.Name;
+            //ws.Cell(1,2).Value = reportData.Name; //TODO
             
             ws.Cell(2,1).Value = "Месяц:";
-            ws.Cell(2,2).Value = reportData.Date;
+            //ws.Cell(2,2).Value = reportData.Date; //TODO
             ws.Cell(2,2).Style.DateFormat.Format = "MM.yyyy";
             
             ws.Cell(3,1).Value = "Запланированных часов:";
@@ -33,18 +33,18 @@ namespace JiraStatistic.Business.Reports.MonthReport
             ws.Cell(4,2).Value = reportData.ClosedHours;
             
             ws.Cell(6,1).Value = "Проект:";
-            ws.Cell(6,2).Value = reportData.Project.Name;
+            //ws.Cell(6,2).Value = reportData.Project.Name; //TODO
             
             ws.Cell(7,1).Value = "Часы:";
-            ws.Cell(7,2).Value = reportData.Project.ClosedHours;
+            //ws.Cell(7,2).Value = reportData.Project.ClosedHours; //TODO
             
             ws.Cell(8,1).Value = "Название задачи";
             ws.Cell(8,2).Value = "Часы";
             
-            ws.Cell(9, 1).Value = reportData.Project.Tasks.Select(x => new {Name = $"{x.Code} {x.Name}", Hours = x.Hours}).AsEnumerable();
-            var rngTable = ws.Range(8,1,8 + reportData.Project.Tasks.Length,2); 
+            /*ws.Cell(9, 1).Value = reportData.Project.Tasks.Select(x => new {Name = $"{x.Code} {x.Name}", Hours = x.Hours}).AsEnumerable(); //TODO
+            var rngTable = ws.Range(8,1,8 + reportData.Project.Tasks.Length,2);
             rngTable.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-            rngTable.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+            rngTable.Style.Border.InsideBorder = XLBorderStyleValues.Thin;*/
             
             var rngTitle1 = ws.Range(1,1,4,1);
             rngTitle1.Style

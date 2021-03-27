@@ -3,6 +3,8 @@
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <UserSecretsId>dotnet-JiraStatisic.WorkerService-A0A531A7-9B0E-45F0-B625-7EBFC8D59128</UserSecretsId>
+        <AssemblyName>JiraStatistic.WorkerService</AssemblyName>
+        <RootNamespace>JiraStatistic.WorkerService</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -15,5 +17,9 @@
       <ProjectReference Include="..\JiraStatistic.Business\JiraStatistic.Business.csproj" />
       <ProjectReference Include="..\JiraStatistic.Domain\JiraStatistic.Domain.csproj" />
       <ProjectReference Include="..\JiraStatistic.JiraClient\JiraStatistic.JiraClient.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="appsettings.local.json" />
     </ItemGroup>
 </Project>
