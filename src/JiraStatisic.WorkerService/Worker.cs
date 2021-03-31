@@ -22,7 +22,7 @@ namespace JiraStatistic.WorkerService
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("Worker running at: {Time}", DateTimeOffset.Now);
-            
+
             var monthSummaryReport = _serviceProvider.GetService<IMonthSummaryReport>() ?? throw new NullReferenceException();
             await monthSummaryReport.MakeReport();
 
