@@ -18,8 +18,4 @@
       <ProjectReference Include="..\JiraStatistic.Domain\JiraStatistic.Domain.csproj" />
       <ProjectReference Include="..\JiraStatistic.JiraClient\JiraStatistic.JiraClient.csproj" />
     </ItemGroup>
-
-    <ItemGroup>
-      <None Include="appsettings.local.json" />
-    </ItemGroup>
 </Project>
