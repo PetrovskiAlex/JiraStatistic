@@ -5,6 +5,11 @@
         <UserSecretsId>dotnet-JiraStatisic.WorkerService-A0A531A7-9B0E-45F0-B625-7EBFC8D59128</UserSecretsId>
         <AssemblyName>JiraStatistic.WorkerService</AssemblyName>
         <RootNamespace>JiraStatistic.WorkerService</RootNamespace>
+<!--        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>true</SelfContained>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <PublishTrimmed>true</PublishTrimmed>
+        <PublishReadyToRun>true</PublishReadyToRun>-->
     </PropertyGroup>
 
     <ItemGroup>

@@ -78,7 +78,7 @@ namespace JiraStatistic.Business.Reports.MonthReport
                         Name = w.Summary,
                         Hours = w.Hours
                     }).ToArray(),
-                    ClosedHours = Math.Round(workLogs.Sum(w => w.Hours), 1)
+                    ClosedHours = Math.Round(workLogs.Sum(w => w.Hours), 2)
                 };
 
                 yield return projectData;
@@ -134,8 +134,8 @@ namespace JiraStatistic.Business.Reports.MonthReport
                     Hours = Math.Round(
                         (issue.Fields.Worklog?.Worklogs?
                             .Where(w => w.Author.Name == user)
-                            .Where(w => w.Started >= filter.Start && w.Started <= filter.End)
-                            .Sum(w => w.TimeSpentSeconds) / 60 / 60.0) ?? 0, 1)
+                            .Where(w => w.Started.Date >= filter.Start && w.Started.Date <= filter.End)
+                            .Sum(w => w.TimeSpentSeconds) / 60 / 60.0) ?? 0, 2)
                 })
                 .GroupBy(w => w.Key)
                 .Select(group =>
