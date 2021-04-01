@@ -1,4 +1,5 @@
 ﻿using System;
+using JiraStatistic.JiraClient.Clients.Project;
 
 namespace JiraStatistic.JiraClient.Clients.Search
 {
@@ -11,6 +12,7 @@ namespace JiraStatistic.JiraClient.Clients.Search
     {
         public string Summary { get; set; }
         public WorkLog Worklog { get; set; }
+        public ProjectInfo Project { get; set; }
     }
 
     public class WorkLog : BaseStatisticResponse

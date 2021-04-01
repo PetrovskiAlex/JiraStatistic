@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 
-namespace JiraStatisic.WorkerService
+namespace JiraStatistic.WorkerService
 {
     public class Program
     {

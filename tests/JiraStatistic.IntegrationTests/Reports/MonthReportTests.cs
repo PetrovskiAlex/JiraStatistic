@@ -3,7 +3,7 @@ using Bogus;
 using FluentAssertions;
 using JiraStatistic.Business.Abstractions.Reports.MonthReport;
 using JiraStatistic.Business.Reports.MonthReport;
-using JiraStatistic.Domain.Settings;
+using JiraStatistic.Domain.Settings.Jira;
 using JiraStatistic.Domain.Settings.Report;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -38,25 +38,27 @@ namespace JiraStatistic.IntegrationTests.Reports
         public async Task ReportTest()
         {
             var monthReportTaskInfo = new Faker<ReportTaskInfo>()
-                .RuleFor(p => p.Code, r => r.Random.String())
-                .RuleFor(p => p.Name, r => r.Random.String())
+                .RuleFor(p => p.Code, r => r.Random.String2(20))
+                .RuleFor(p => p.Name, r => r.Random.String2(20))
                 .RuleFor(p => p.Hours, r => r.Random.Double(100d, 200d))
                 .Generate(5);
             
-            var monthReportProjectInfo = new Faker<ReportProjectInfo>()
-                .RuleFor(p => p.Name, r => r.Random.String())
+            var monthReportProjectSummary = new Faker<ProjectSummaryReportData>()
+                .RuleFor(p => p.Name, r => r.Random.String2(20))
                 .RuleFor(p => p.ClosedHours, r => r.Random.Double(100d, 200d))
                 .RuleFor(p => p.Tasks, monthReportTaskInfo.ToArray)
-                .Generate();
+                .Generate(2);
 
             var monthSummaryReportData = new Faker<SummaryReportData>()
                 .RuleFor(r => r.Name, r => r.Person.FullName)
                 .RuleFor(r => r.Date, r => r.Date.Past())
-                .RuleFor(r => r.Project, monthReportProjectInfo)
+                .RuleFor(r => r.Projects, monthReportProjectSummary.ToArray)
                 .RuleFor(r => r.ClosedHours, r => r.Random.Double(100d, 200d))
                 .Generate();
 
             await _excelMonthReportSaver!.Save(monthSummaryReportData);
+
+            await Task.CompletedTask;
         }
     }
 }

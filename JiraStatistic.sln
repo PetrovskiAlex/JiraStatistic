@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JiraStatistic.ConsoleApp", "src\JiraStatistic.ConsoleApp\JiraStatistic.ConsoleApp.csproj", "{8AC8F4A6-C979-4252-92F5-87ACD611FEE8}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JiraStatistic.JiraClient", "src\JiraStatistic.JiraClient\JiraStatistic.JiraClient.csproj", "{4D4B53EB-2752-42C3-B60A-5DC928C93FE0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7595ED20-0538-4548-9110-0767DE83BF13}"
@@ -29,10 +27,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8AC8F4A6-C979-4252-92F5-87ACD611FEE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8AC8F4A6-C979-4252-92F5-87ACD611FEE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8AC8F4A6-C979-4252-92F5-87ACD611FEE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8AC8F4A6-C979-4252-92F5-87ACD611FEE8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4D4B53EB-2752-42C3-B60A-5DC928C93FE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4D4B53EB-2752-42C3-B60A-5DC928C93FE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D4B53EB-2752-42C3-B60A-5DC928C93FE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -66,7 +60,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{8AC8F4A6-C979-4252-92F5-87ACD611FEE8} = {7595ED20-0538-4548-9110-0767DE83BF13}
 		{4D4B53EB-2752-42C3-B60A-5DC928C93FE0} = {7595ED20-0538-4548-9110-0767DE83BF13}
 		{45F3A096-692B-4D21-86B6-A198A9F484CB} = {F141BA58-AEDB-486F-B3C6-C27B8EB2E0CA}
 		{56269B5E-4D18-4DF3-B151-C57C6DD2D7E2} = {F141BA58-AEDB-486F-B3C6-C27B8EB2E0CA}

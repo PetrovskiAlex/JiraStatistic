@@ -1,25 +1,24 @@
 ﻿using System.Threading.Tasks;
 using FluentAssertions;
-using JiraStatistic.Domain.Settings;
+using JiraStatistic.JiraClient;
 using JiraStatistic.JiraClient.Clients.Project;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using NUnit.Framework;
 
 namespace JiraStatistic.IntegrationTests.JiraClientsTests
 {
-    public class JiraProjectTests
+    public class JiraProjectTests : JiraClientTests
     {
         [Test]
         public async Task GetProjectInfo()
         {
-            var client = TestStartup.ServiceProvider.GetService<IJiraProjectClient>();
-            var jiraSettings = TestStartup.ServiceProvider.GetService<IOptions<JiraSettings>>()?.Value;
+            var jiraClientFactory = TestStartup.ServiceProvider.GetService<IJiraClientFactory>();
+            var client = jiraClientFactory!.GetClient<IJiraProjectClient>(JiraConfig);
 
-            var projectInfo = await client!.GetProjectInfo(jiraSettings!.ProjectInfo.Name);
+            var projectInfo = await client!.GetProjectInfo("PROD");
 
             projectInfo.Should().NotBeNull();
-            projectInfo.Key.Should().Be(jiraSettings.ProjectInfo.Name);
+            projectInfo.Key.Should().Be("PROD");
             projectInfo.Id.Should().NotBeEmpty();
         }
     }

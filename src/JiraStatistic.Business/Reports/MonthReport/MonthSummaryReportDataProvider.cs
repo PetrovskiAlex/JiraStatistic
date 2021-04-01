@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JiraStatistic.Business.Abstractions.Reports.MonthReport;
-using JiraStatistic.Domain.Settings;
+using JiraStatistic.Domain.Settings.Jira;
 using JiraStatistic.Domain.Settings.Report;
+using JiraStatistic.JiraClient;
 using JiraStatistic.JiraClient.Clients.Issue;
 using JiraStatistic.JiraClient.Clients.Project;
 using JiraStatistic.JiraClient.Clients.Search;
@@ -20,46 +21,57 @@ namespace JiraStatistic.Business.Reports.MonthReport
 {
     public class MonthSummaryReportDataProvider : IMonthSummaryReportDataProvider
     {
-        private readonly IJiraProjectClient _projectClient;
-        private readonly IJiraSearchClient _searchClient;
-        private readonly IJiraUserClient _jiraUserClient;
-        private readonly IJiraWorkLogClient _jiraWorkLogClient;
-        private readonly ReportSettings _reportSettings;
+        private readonly IJiraClientFactory _jiraClientFactory;
         private readonly JiraSettings _jiraSettings;
+        private readonly ReportSettings _reportSettings;
 
         public MonthSummaryReportDataProvider(
-            IJiraProjectClient projectClient, 
-            IJiraSearchClient searchClient,
-            IJiraUserClient jiraUserClient,
-            IJiraWorkLogClient jiraWorkLogClient,
-            IOptions<ReportSettings> reportSettings, 
-            IOptions<JiraSettings> jiraSettings)
+            IJiraClientFactory jiraClientFactory,
+            IOptions<JiraSettings> jiraSettings,
+            IOptions<ReportSettings> reportSettings)
         {
-            _projectClient = projectClient;
-            _searchClient = searchClient;
-            _jiraUserClient = jiraUserClient;
-            _jiraWorkLogClient = jiraWorkLogClient;
-            _reportSettings = reportSettings.Value;
+            _jiraClientFactory = jiraClientFactory;
             _jiraSettings = jiraSettings.Value;
+            _reportSettings = reportSettings.Value;
         }
 
         public async Task<SummaryReportData> GetData()
         {
-            var user = await _jiraUserClient.Myself();
-            var projectInfo = await _projectClient.GetProjectInfo(_jiraSettings.ProjectInfo.Name);
-
             var dateFilter = GetDateFilter();
-            var issues = await GetIssues(dateFilter);
-            var workLogs = await GetWorkLogs(issues, dateFilter, user.Name);
 
-            return new SummaryReportData
+            var reportData = new SummaryReportData
             {
                 Date = dateFilter.Start,
-                ClosedHours = Math.Round(workLogs.Sum(w => w.Hours), 1),
-                Name = user.DisplayName,
-                Project = new ReportProjectInfo
+            };
+
+            var projectReports = new List<ProjectSummaryReportData>();
+            foreach (var jiraInfo in _jiraSettings.JiraInfos)
+            {
+                await foreach (var projectsInfo in GetProjectsInfoFromJira(jiraInfo, dateFilter))
                 {
-                    Name = projectInfo.Name,
+                    projectReports.Add(projectsInfo);
+                }    
+            }
+
+            reportData.Projects = projectReports.ToArray();
+            reportData.ClosedHours = projectReports.Sum(p => p.ClosedHours);
+            return reportData;
+        }
+
+        private async IAsyncEnumerable<ProjectSummaryReportData> GetProjectsInfoFromJira(JiraInfo jiraInfo, DateTimeFilter dateFilter)
+        {
+            var jiraConfig = new JiraConfig(new UserLogin(jiraInfo.Auth.Login, jiraInfo.Auth.Password), jiraInfo.BaseUri);
+            var jiraUserClient = _jiraClientFactory.GetClient<IJiraUserClient>(jiraConfig);
+            var user = await jiraUserClient.Myself(jiraConfig);
+            var issues = await GetIssues(jiraConfig, dateFilter);
+            var projects = GetProjectsFromIssues(issues);
+
+            foreach (var project in projects)
+            {
+                var workLogs = await GetWorkLogs(jiraConfig, issues, dateFilter, project.Key, user.Name);
+                var projectData = new ProjectSummaryReportData
+                {
+                    Name = project.Name,
                     Tasks = workLogs.Select(w => new ReportTaskInfo
                     {
                         Code = w.Code,
@@ -67,57 +79,54 @@ namespace JiraStatistic.Business.Reports.MonthReport
                         Hours = w.Hours
                     }).ToArray(),
                     ClosedHours = Math.Round(workLogs.Sum(w => w.Hours), 1)
-                }
-            };
+                };
+
+                yield return projectData;
+            }
+        }
+
+        private ProjectInfo[] GetProjectsFromIssues(List<Issue> issues)
+        {
+            return issues
+                .Where(i => i.Fields?.Project != null)
+                .GroupBy(i => new {i.Fields.Project.Key, i.Fields.Project.Name})
+                .Select(g => new ProjectInfo
+                {
+                    Key = g.Key.Key,
+                    Name = g.Key.Name
+                })
+                .ToArray();
         }
         
-        private async Task<List<Issue>> GetIssues(DateTimeFilter dateFilter)
+        private async Task<List<Issue>> GetIssues(JiraConfig jiraConfig, DateTimeFilter dateFilter)
         {
             var startAt = 0;
-            var jql = $"project = {_jiraSettings.ProjectInfo.Name} " +
-                      $"and worklogAuthor = currentUser() " +
+            var jql = "worklogAuthor = currentUser() " +
                       $"and worklogDate >= {dateFilter.Start:yyyy-MM-dd} " +
                       $"and worklogDate <= {dateFilter.End:yyyy-MM-dd} " +
                       $" order by createdDate asc";
 
-            var fields = "worklog, summary";
-            var total = 0;
+            var fields = "worklog, summary, project";
 
-            var result = new List<Issue>();
-            var searchResponse = await _searchClient.Search(jql, fields, startAt:startAt);
-            result.AddRange(searchResponse.Issues);
-
-            total += (searchResponse.Issues?.Length ?? 0);
-            while (total < searchResponse.Total)
-            {
-                searchResponse = await _searchClient.Search(jql, fields, startAt:startAt);
-                result.AddRange(searchResponse.Issues);
-                total += (searchResponse.Issues?.Length ?? 0);
-            }
-
+            var searchClient = _jiraClientFactory.GetClient<IJiraSearchClient>(jiraConfig);
+            var result = await JiraClientHelper.GetAll(() => searchClient.Search(jql, fields, startAt: startAt), response => response.Issues);
             return result;
         }
         
-        private async ValueTask<IssueTime[]> GetWorkLogs(List<Issue> issues, DateTimeFilter filter, string user)
+        private async ValueTask<IssueTime[]> GetWorkLogs(JiraConfig jiraConfig, List<Issue> issues, DateTimeFilter filter, string projectKey, string user)
         {
-            var issuesToEnrichWorkLogs = issues.Where(i => i.Fields.Worklog.MaxResults < i.Fields.Worklog.Total).ToArray();
+            var issuesToEnrichWorkLogs = issues
+                .Where(i => i.Fields.Worklog.MaxResults < i.Fields.Worklog.Total && i.Fields.Project.Key == projectKey).ToArray();
+
+            var jiraWorkLogClient = _jiraClientFactory.GetClient<IJiraWorkLogClient>(jiraConfig);
             foreach (var issue in issuesToEnrichWorkLogs)
             {
-                var workLogs = new List<WorklogItem>();
-                var issueWorkLogResponse = await _jiraWorkLogClient.GetIssueWorkLogs(issue.Id);
-                workLogs.AddRange(issueWorkLogResponse.Worklogs);
-                var total = issueWorkLogResponse.Worklogs.Length;
-                while (total < issueWorkLogResponse.Total)
-                {
-                    issueWorkLogResponse = await _jiraWorkLogClient.GetIssueWorkLogs(issue.Id);
-                    workLogs.AddRange(issueWorkLogResponse.Worklogs);
-                    total += issueWorkLogResponse.Worklogs.Length;
-                }
-
+                var workLogs = await JiraClientHelper.GetAll(() => jiraWorkLogClient.GetIssueWorkLogs(issue.Id), response => response.Worklogs);
                 issue.Fields.Worklog.Worklogs = workLogs.ToArray();
             }
 
             var result = issues
+                .Where(i => i.Fields.Project.Key == projectKey)
                 .Select(issue => new
                 {
                     issue.Key,
@@ -143,7 +152,7 @@ namespace JiraStatistic.Business.Reports.MonthReport
             var dateNow = DateTime.Now;
             var year = monthReportSettings.Year <= 0 ? dateNow.Year : monthReportSettings.Year;
             var month = monthReportSettings.Month <= 0 || monthReportSettings.Month > 12
-                ? dateNow.Month
+                ? dateNow.Month > 1 ? dateNow.Month - 1 : dateNow.Month
                 : monthReportSettings.Month;
             var daysInMonth = DateTime.DaysInMonth(year, month);
             var start = new DateTime(year, month, 1);

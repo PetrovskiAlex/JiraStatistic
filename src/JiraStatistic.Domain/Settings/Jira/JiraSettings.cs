@@ -1,12 +1,15 @@
 ﻿using System;
-using JiraStatistic.Domain.Settings.Jira;
 
-namespace JiraStatistic.Domain.Settings
+namespace JiraStatistic.Domain.Settings.Jira
 {
     public class JiraSettings
     {
+        public JiraInfo[] JiraInfos { get; set; }
+    }
+
+    public class JiraInfo
+    {
         public JiraAuthSettings Auth { get; set; }
         public Uri BaseUri { get; set; }
-        public JiraProjectSettings ProjectInfo { get; set; }
     }
 }

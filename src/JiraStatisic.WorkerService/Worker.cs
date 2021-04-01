@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace JiraStatisic.WorkerService
+namespace JiraStatistic.WorkerService
 {
     public class Worker : BackgroundService
     {
@@ -22,7 +22,7 @@ namespace JiraStatisic.WorkerService
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("Worker running at: {Time}", DateTimeOffset.Now);
-            
+
             var monthSummaryReport = _serviceProvider.GetService<IMonthSummaryReport>() ?? throw new NullReferenceException();
             await monthSummaryReport.MakeReport();
 
